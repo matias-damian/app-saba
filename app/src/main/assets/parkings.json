@@ -1,0 +1,74 @@
+[
+  {
+    "id": "plaza-bellavista",
+    "name": "Plaza Bellavista",
+    "commune": "Valparaíso",
+    "spaces": 260
+  },
+  {
+    "id": "marchant-pereira",
+    "name": "Marchant Pereira",
+    "commune": "Providencia",
+    "spaces": 440
+  },
+  {
+    "id": "pedro-de-valdivia",
+    "name": "Pedro de Valdivia",
+    "commune": "Providencia",
+    "spaces": 336
+  },
+  {
+    "id": "guardia-vieja",
+    "name": "Guardia Vieja",
+    "commune": "Providencia",
+    "spaces": 336
+  },
+  {
+    "id": "ricardo-lyon",
+    "name": "Ricardo Lyon",
+    "commune": "Providencia",
+    "spaces": 472
+  },
+  {
+    "id": "bulnes",
+    "name": "Bulnes",
+    "commune": "Santiago Centro",
+    "spaces": 376
+  },
+  {
+    "id": "plaza-de-armas",
+    "name": "Plaza de Armas",
+    "commune": "Santiago Centro",
+    "spaces": 402
+  },
+  {
+    "id": "santa-rosa",
+    "name": "Santa Rosa",
+    "commune": "Santiago Centro",
+    "spaces": 288
+  },
+  {
+    "id": "parque-forestal",
+    "name": "Parque Forestal",
+    "commune": "Santiago Centro",
+    "spaces": 337
+  },
+  {
+    "id": "plaza-de-la-ciudadania",
+    "name": "Plaza de la Ciudadanía",
+    "commune": "Santiago Centro",
+    "spaces": 557
+  },
+  {
+    "id": "santa-lucia",
+    "name": "Santa Lucía",
+    "commune": "Santiago Centro",
+    "spaces": 504
+  },
+  {
+    "id": "plaza-mekis",
+    "name": "Plaza Mekis",
+    "commune": "Santiago Centro",
+    "spaces": 452
+  }
+]

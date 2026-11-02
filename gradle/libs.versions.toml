@@ -1,0 +1,25 @@
+[versions]
+agp = "8.11.2"
+activity = "1.13.0"
+compose = "2026.06.01"
+core = "1.18.0"
+coroutines = "1.11.0"
+kotlin = "2.4.21"
+lifecycle = "2.10.0"
+msal = "8.6.0"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-icons = { module = "androidx.compose.material:material-icons-core" }
+androidx-core = { module = "androidx.core:core-ktx", version.ref = "core" }
+androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+microsoft-msal = { module = "com.microsoft.identity.client:msal", version.ref = "msal" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
