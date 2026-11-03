@@ -1,5 +1,14 @@
 package cl.saba.operaciones.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,70 +78,94 @@ fun HomeScreen(
     var screen by rememberSaveable { mutableStateOf(HomePage.ORIGINAL.name) }
     var dialogMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val requestedPage = HomePage.entries.firstOrNull { it.name == screen } ?: HomePage.ORIGINAL
+
     // Si se borra una selección, no se muestra un Home con datos inexistentes.
     val page = if (selectedParking == null && requestedPage != HomePage.ORIGINAL)
         HomePage.ORIGINAL else requestedPage
 
-    if (page == HomePage.ORIGINAL) {
-        OriginalParkingSelection(
-            state = state,
-            session = session,
-            onSelect = onSelect,
-            onRetry = onRetry,
-            onSignOut = onSignOut,
-            onEnterHome = { if (selectedParking != null && !state.isSaving) screen = HomePage.DASHBOARD.name }
-        )
-    } else {
-        Scaffold(
-            containerColor = SabaUiColors.background,
-            topBar = {
-                SabaPrototypeHeader(
-                    subtitle = when (page) {
-                        HomePage.STATUS -> "Parking ${selectedParking?.name.orEmpty()}"
-                        else -> if (preview) "Operación Terreno · Vista previa" else "Operación Terreno"
-                    },
-                    showBack = page == HomePage.STATUS ||
-                        page == HomePage.INCIDENTS || page == HomePage.GUIDES || page == HomePage.ACCOUNT,
-                    onBack = {
-                        screen = HomePage.DASHBOARD.name
-                    },
-                    onBell = { dialogMessage = "No existe un servicio de notificaciones conectado." }
-                )
-            },
-            bottomBar = {
-                SabaBottomNavigation(page) { screen = it.name }
+    AnimatedContent(
+        targetState = (page == HomePage.ORIGINAL),
+        transitionSpec = {
+            if (targetState) {
+                (slideInHorizontally(animationSpec = tween(350), initialOffsetX = { -it }) + fadeIn(tween(350)))
+                    .togetherWith(slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { it }) + fadeOut(tween(300)))
+            } else {
+                (slideInHorizontally(animationSpec = tween(350), initialOffsetX = { it }) + fadeIn(tween(350)))
+                    .togetherWith(slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { -it }) + fadeOut(tween(300)))
             }
-        ) { insets ->
-            Box(Modifier.fillMaxSize().padding(insets)) {
-                when (page) {
-                    HomePage.ORIGINAL -> Unit // Tratado fuera de este Scaffold.
-                    HomePage.DASHBOARD -> ParkingDashboardContent(
-                        name = selectedParking?.name.orEmpty(),
-                        commune = selectedParking?.commune.orEmpty(),
-                        spaces = selectedParking?.spaces ?: 0,
-                        preview = preview,
-                        onChangeParking = { screen = HomePage.ORIGINAL.name },
-                        onStatus = { screen = HomePage.STATUS.name },
-                        onIncident = { screen = HomePage.INCIDENTS.name },
-                        onGuide = { screen = HomePage.GUIDES.name }
+        },
+        label = "PickerToDashboardTransition"
+    ) { isOriginalPage ->
+        if (isOriginalPage) {
+            OriginalParkingSelection(
+                state = state,
+                session = session,
+                onSelect = onSelect,
+                onRetry = onRetry,
+                onSignOut = onSignOut,
+                onEnterHome = { if (selectedParking != null && !state.isSaving) screen = HomePage.DASHBOARD.name }
+            )
+        } else {
+            Scaffold(
+                containerColor = SabaUiColors.background,
+                topBar = {
+                    SabaPrototypeHeader(
+                        subtitle = when (page) {
+                            HomePage.STATUS -> "Parking ${selectedParking?.name.orEmpty()}"
+                            else -> if (preview) "Operación Terreno · Vista previa" else "Operación Terreno"
+                        },
+                        showBack = page == HomePage.STATUS ||
+                                page == HomePage.INCIDENTS || page == HomePage.GUIDES || page == HomePage.ACCOUNT,
+                        onBack = {
+                            screen = HomePage.DASHBOARD.name
+                        },
+                        onBell = { dialogMessage = "No existe un servicio de notificaciones conectado." }
                     )
-                    HomePage.STATUS -> ParkingStatusContent(
-                        name = selectedParking?.name.orEmpty(),
-                        preview = preview,
-                        onRefresh = {
-                            dialogMessage = "Todavía no existe un servicio de monitoreo de equipos conectado. " +
-                                "Los estados del prototipo son ejemplos."
+                },
+                bottomBar = {
+                    SabaBottomNavigation(page) { screen = it.name }
+                }
+            ) { insets ->
+                Box(Modifier.fillMaxSize().padding(insets)) {
+                    AnimatedContent(
+                        targetState = page,
+                        transitionSpec = {
+                            (scaleIn(initialScale = 0.92f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)))
+                                .togetherWith(scaleOut(targetScale = 1.08f, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300)))
+                        },
+                        label = "DashboardToStatusZoomTransition"
+                    ) { targetPage ->
+                        when (targetPage) {
+                            HomePage.ORIGINAL -> Unit // Tratado fuera de este Scaffold.
+                            HomePage.DASHBOARD -> ParkingDashboardContent(
+                                name = selectedParking?.name.orEmpty(),
+                                commune = selectedParking?.commune.orEmpty(),
+                                spaces = selectedParking?.spaces ?: 0,
+                                preview = preview,
+                                onChangeParking = { screen = HomePage.ORIGINAL.name },
+                                onStatus = { screen = HomePage.STATUS.name },
+                                onIncident = { screen = HomePage.INCIDENTS.name },
+                                onGuide = { screen = HomePage.GUIDES.name }
+                            )
+                            HomePage.STATUS -> ParkingStatusContent(
+                                name = selectedParking?.name.orEmpty(),
+                                preview = preview,
+                                onRefresh = {
+                                    dialogMessage = "Todavía no existe un servicio de monitoreo de equipos conectado. " +
+                                            "Los estados del prototipo son ejemplos."
+                                }
+                            )
+                            HomePage.INCIDENTS -> UnimplementedSection(
+                                "Incidentes", "La consulta y registro de incidentes aún no están conectados. " +
+                                        "El Home muestra únicamente ejemplos del prototipo Figma."
+                            )
+                            HomePage.GUIDES -> UnimplementedSection(
+                                "Guías", "El módulo de guías y soporte todavía no está implementado. " +
+                                        "Se ha conservado el resto de la aplicación."
+                            )
+                            HomePage.ACCOUNT -> AccountSection(preview, session.isLoading, onSignOut)
                         }
-                    )
-                    HomePage.INCIDENTS -> UnimplementedSection(
-                        "Incidentes", "La consulta y registro de incidentes aún no están conectados. " +
-                            "El Home muestra únicamente ejemplos del prototipo Figma."
-                    )
-                    HomePage.GUIDES -> UnimplementedSection(
-                        "Guías", "El módulo de guías y soporte todavía no está implementado. " +
-                            "Se ha conservado el resto de la aplicación."
-                    )
-                    HomePage.ACCOUNT -> AccountSection(preview, session.isLoading, onSignOut)
+                    }
                 }
             }
         }
@@ -186,7 +219,7 @@ private fun SabaBottomNavigation(page: HomePage, onNavigate: (HomePage) -> Unit)
     NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
         entries.forEach { (destination, title, symbol) ->
             val selected = page == destination ||
-                (page == HomePage.STATUS && destination == HomePage.DASHBOARD)
+                    (page == HomePage.STATUS && destination == HomePage.DASHBOARD)
             NavigationBarItem(
                 selected = selected,
                 onClick = { onNavigate(destination) },
